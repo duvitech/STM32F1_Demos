@@ -1,0 +1,15 @@
+include.txt
+
+ Created on: 2012-9-18
+     Author: YangZhiyong
+
+
+
+
+"${workspace_loc:/${ProjName}/src}"
+"${workspace_loc:/${ProjName}/src/hal/inc}"
+"${workspace_loc:/${ProjName}/src/lib/config}"
+"${workspace_loc:/${ProjName}/src/lib/STM32F10x}"
+"${workspace_loc:/${ProjName}/src/lib/STM32F10x_StdPeriph_Driver/inc}"
+
+

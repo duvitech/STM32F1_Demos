@@ -1,0 +1,10 @@
+#Wed Sep 19 10:45:35 CST 2012
+eclipse.preferences.version=1
+environment/buildEnvironmentInclude/iar.arm.toolchain.project.exe.configuration.debug.v5.4.0.1577709022/C_INCLUDE/delimiter=;
+environment/buildEnvironmentInclude/iar.arm.toolchain.project.exe.configuration.debug.v5.4.0.1577709022/C_INCLUDE/operation=remove
+environment/buildEnvironmentInclude/iar.arm.toolchain.project.exe.configuration.debug.v5.4.0.1577709022/append=true
+environment/buildEnvironmentInclude/iar.arm.toolchain.project.exe.configuration.debug.v5.4.0.1577709022/appendContributed=true
+environment/buildEnvironmentLibrary/iar.arm.toolchain.project.exe.configuration.debug.v5.4.0.1577709022/LIBRARY_PATH/delimiter=;
+environment/buildEnvironmentLibrary/iar.arm.toolchain.project.exe.configuration.debug.v5.4.0.1577709022/LIBRARY_PATH/operation=remove
+environment/buildEnvironmentLibrary/iar.arm.toolchain.project.exe.configuration.debug.v5.4.0.1577709022/append=true
+environment/buildEnvironmentLibrary/iar.arm.toolchain.project.exe.configuration.debug.v5.4.0.1577709022/appendContributed=true
