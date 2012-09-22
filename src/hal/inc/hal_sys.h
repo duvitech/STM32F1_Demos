@@ -13,7 +13,6 @@ extern "C" {
 #endif
 
 
-
 void SYS_EnterInt(void);
 void SYS_ExitInt(void);
 

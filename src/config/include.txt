@@ -12,4 +12,14 @@ include.txt
 "${workspace_loc:/${ProjName}/src/lib/STM32F10x}"
 "${workspace_loc:/${ProjName}/src/lib/STM32F10x_StdPeriph_Driver/inc}"
 
-
+"${workspace_loc:/${ProjName}/src/os/uCOS-III/Source}"
+"${workspace_loc:/${ProjName}/src/os/uCOS-III/Cfg}"
+"${workspace_loc:/${ProjName}/src/os/uC-LIB/Cfg}"
+"${workspace_loc:/${ProjName}/src/os/uC-CPU/Cfg}"
+"${workspace_loc:/${ProjName}/src/os/uC-APP/Cfg}"
+"${workspace_loc:/${ProjName}/src/os/uC-CPU/ARM-Cortex-M3/IAR}"
+"${workspace_loc:/${ProjName}/src/os/uC-CPU}"
+"${workspace_loc:/${ProjName}/src/os/uC-LIB}"
+"${workspace_loc:/${ProjName}/src/os/uC-APP}"
+"${workspace_loc:/${ProjName}/src/os/uC-BSP}"
+"${workspace_loc:/${ProjName}/src/os/uCOS-III/Ports/ARM-Cortex-M3/Generic/IAR}"

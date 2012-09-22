@@ -2,9 +2,9 @@
 FillEnabled=0
 OverflowWarningsEnabled=1
 WarningThreshold=90
-SpWarningsEnabled=1
-WarnLogOnly=1
-UseTrigger=1
+SpWarningsEnabled=0
+WarnLogOnly=0
+UseTrigger=0
 TriggerName=main
 LimitSize=0
 ByteLimit=50
