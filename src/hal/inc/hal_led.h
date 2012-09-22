@@ -18,6 +18,7 @@ extern "C" {
 void LED_Init(void);
 void LED_On(uint8_t led);
 void LED_Off(uint8_t led);
+void LED_Set(uint8_t led, uint8_t value);
 
 #ifdef __cplusplus
 }

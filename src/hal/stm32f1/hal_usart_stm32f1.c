@@ -218,6 +218,8 @@ void USART2_IRQHandler(void)
 
 void DMA1_Channel7_IRQHandler(void)
 {
+    SYS_EnterInt();
+
     if ( DMA_GetITStatus(DMA1_IT_TC7) )
     {
         if( SendDoneISR2 != 0 )
@@ -226,7 +228,10 @@ void DMA1_Channel7_IRQHandler(void)
         }
         DMA_ClearITPendingBit(DMA1_IT_TC7);
     }
+
+    SYS_ExitInt();
 }
+
 
 
 

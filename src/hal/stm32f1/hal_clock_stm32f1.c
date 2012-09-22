@@ -22,7 +22,8 @@ void Clock_Init(void)
                            RCC_APB2Periph_GPIOB |
                            RCC_APB2Periph_GPIOC |
                            RCC_APB2Periph_GPIOD |
-                           RCC_APB2Periph_GPIOE,
+                           RCC_APB2Periph_GPIOE |
+                           RCC_APB2Periph_GPIOF,
                            ENABLE);
 
 

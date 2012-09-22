@@ -38,10 +38,14 @@ void TermEcho(void *p_arg)
     while(1)
     {
         read_length = Term_ReadLine(&TP_USART2, LineBuffer, sizeof(LineBuffer));
-        Term_WriteLine(&TP_USART2, LineBuffer, read_length);
+//        Term_WriteLine(&TP_USART2, LineBuffer, read_length);
     }
 
 }
+
+
+
+
 
 
 

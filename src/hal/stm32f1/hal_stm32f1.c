@@ -11,11 +11,13 @@
 #include "hal_usart.h"
 #include "hal_pin.h"
 #include "hal_intrrupt.h"
+#include "hal_led.h"
 
 void HAL_Init(void)
 {
     Clock_Init();
     PIN_Init();
+    LED_Init();
     USART2_Init();
     Intrrupt_Init();
 }

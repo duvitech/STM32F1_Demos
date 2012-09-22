@@ -5,10 +5,15 @@
  *      Author: YangZhiyong
  */
 
+#include <cpu.h>
+#include <os.h>
 
 void SYS_EnterInt(void)
 {
-
+    CPU_SR_ALLOC();
+    CPU_CRITICAL_ENTER();
+    OSIntEnter();
+    CPU_CRITICAL_EXIT();
 }
 
 
@@ -16,7 +21,5 @@ void SYS_EnterInt(void)
 
 void SYS_ExitInt(void)
 {
-
+    OSIntExit();
 }
-
-

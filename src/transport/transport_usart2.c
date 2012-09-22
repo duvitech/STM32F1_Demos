@@ -30,8 +30,6 @@ enum TRANSPORT_Status getStatus(void)
 
 static uint32_t recv(uint8_t* buffer, uint32_t max_length)
 {
-    OS_ERR error;
-
     return USART2_Recv(buffer, max_length);
 }
 
@@ -91,21 +89,6 @@ static uint8_t init(void* config)
 
     USART2_SetRecvTimeoutISR(onRecvDone);
     USART2_SetSendDoneISR(onSendDone);
-
-    OSFlagPost(     &TP_USART2_Flags,
-                    TP_USART2_FLAG_RECVDONE,
-                    OS_OPT_POST_FLAG_CLR,
-                    &error);
-
-    OSFlagPost(     &TP_USART2_Flags,
-                    TP_USART2_FLAG_SENDDONE,
-                    OS_OPT_POST_FLAG_CLR,
-                    &error);
-
-    OSFlagPost(     &TP_USART2_Flags,
-                    TP_USART2_FLAG_ERROR,
-                    OS_OPT_POST_FLAG_CLR,
-                    &error);
 
     return true;
 }
