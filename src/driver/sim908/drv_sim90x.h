@@ -14,6 +14,8 @@ extern "C" {
 
 
 void SIM90x_Init(void);
+void SIM90x_PowerUp(void);
+void SIM90x_PowerDown(void);
 
 
 #ifdef __cplusplus

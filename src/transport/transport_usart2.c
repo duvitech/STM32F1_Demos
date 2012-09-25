@@ -30,7 +30,21 @@ enum TRANSPORT_Status getStatus(void)
 
 static uint32_t recv(uint8_t* buffer, uint32_t max_length)
 {
-    return USART2_Recv(buffer, max_length);
+    OS_ERR error;
+    uint32_t recv_length;
+
+    recv_length = USART2_Recv(buffer, max_length);
+
+    if( USART2_DataAvailable() == 0 )
+    {
+        OSFlagPost(     &TP_USART2_Flags,
+                        TP_USART2_FLAG_RECVDONE,
+                        OS_OPT_POST_FLAG_CLR,
+                        &error);
+    }
+
+
+    return recv_length;
 }
 
 
@@ -83,8 +97,6 @@ static void onSendDone(void)
 
 static uint8_t init(void* config)
 {
-    OS_ERR error;
-
     (void)config;
 
     USART2_SetRecvTimeoutISR(onRecvDone);
@@ -118,16 +130,23 @@ void setEventHandler(enum TRANSPORT_Event event, void (*handler)(void) )
 
 
 
-void waitEventTrigger(enum TRANSPORT_Event event)
+void waitEventTrigger(enum TRANSPORT_Event event, uint32_t timeout)
 {
     OS_ERR error;
+    uint32_t tick_timeout;
+
+    tick_timeout = (timeout*OSCfg_TickRate_Hz)/1000;
+    if( (timeout != 0) && (tick_timeout == 0) )
+    {
+        tick_timeout = 1;
+    }
 
     switch( event )
     {
     case TRANSPORT_Event_RecvDone:
         OSFlagPend(     &TP_USART2_Flags,
                         TP_USART2_FLAG_RECVDONE,
-                        0,
+                        tick_timeout,
                         OS_OPT_PEND_FLAG_SET_ANY,
                         (void*)0,
                         &error  );
@@ -136,7 +155,7 @@ void waitEventTrigger(enum TRANSPORT_Event event)
     case TRANSPORT_Event_SendDone:
         OSFlagPend(     &TP_USART2_Flags,
                         TP_USART2_FLAG_SENDDONE,
-                        0,
+                        tick_timeout,
                         OS_OPT_PEND_FLAG_SET_ANY,
                         (void*)0,
                         &error  );
@@ -145,7 +164,7 @@ void waitEventTrigger(enum TRANSPORT_Event event)
     case TRANSPORT_Event_Error:
         OSFlagPend(     &TP_USART2_Flags,
                         TP_USART2_FLAG_ERROR,
-                        0,
+                        tick_timeout,
                         OS_OPT_PEND_FLAG_SET_ANY,
                         (void*)0,
                         &error  );

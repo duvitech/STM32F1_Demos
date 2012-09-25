@@ -13,8 +13,14 @@ extern "C" {
 #endif
 
 
+#include <stdint.h>
+
+
+
+
 void SYS_EnterInt(void);
 void SYS_ExitInt(void);
+void SYS_DelayMs(uint32_t ms);
 
 
 #ifdef __cplusplus

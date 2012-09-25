@@ -7,6 +7,7 @@
 
 #include <cpu.h>
 #include <os.h>
+#include <stdint.h>
 
 void SYS_EnterInt(void)
 {
@@ -23,3 +24,19 @@ void SYS_ExitInt(void)
 {
     OSIntExit();
 }
+
+
+void SYS_DelayMs(uint32_t ms)
+{
+    OS_ERR error;
+    uint32_t ticks;
+
+    ticks = (ms*OSCfg_TickRate_Hz)/1000;
+
+    OSTimeDly(ticks, OS_OPT_TIME_DLY, &error);
+}
+
+
+
+
+

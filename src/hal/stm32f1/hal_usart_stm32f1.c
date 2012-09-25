@@ -155,6 +155,28 @@ uint32_t USART2_Recv(uint8_t* buffer, uint32_t max_length)
 
 
 
+uint32_t USART2_DataAvailable(void)
+{
+    uint32_t filled_length;
+    uint32_t write_index;
+
+    write_index = sizeof(USART2_RxBuffer) - DMA_GetCurrDataCounter(DMA1_Channel6);
+
+    if( USART2_ReadIndex > write_index )
+    {
+        filled_length = (sizeof(USART2_RxBuffer) - USART2_ReadIndex) + write_index;
+    }
+    else
+    {
+        filled_length = write_index - USART2_ReadIndex;
+    }
+
+
+    return filled_length;
+}
+
+
+
 uint32_t USART2_Flush(void)
 {
     uint32_t flush_length;

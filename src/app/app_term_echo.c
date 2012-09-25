@@ -33,12 +33,12 @@ void TermEcho(void *p_arg)
 
     Term_Init(&TP_USART2);
 
-    Term_WriteLine(&TP_USART2, "Hello World", sizeof("Hello World"));
+    Term_WriteLine(&TP_USART2, "Hello World", sizeof("Hello World"), 0);
 
     while(1)
     {
-        read_length = Term_ReadLine(&TP_USART2, LineBuffer, sizeof(LineBuffer));
-//        Term_WriteLine(&TP_USART2, LineBuffer, read_length);
+        read_length = Term_ReadLine(&TP_USART2, LineBuffer, sizeof(LineBuffer), 0);
+        Term_WriteLine(&TP_USART2, LineBuffer, read_length, 0);
     }
 
 }

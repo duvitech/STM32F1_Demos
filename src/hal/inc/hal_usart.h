@@ -66,6 +66,9 @@ uint32_t USART2_Send(void* buffer, uint32_t length);
 uint32_t USART2_Recv(uint8_t* buffer, uint32_t max_length);
 
 
+uint32_t USART2_DataAvailable(void);
+
+
 /**
  *
  * @return

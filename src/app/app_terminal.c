@@ -21,7 +21,10 @@ void Term_Init(struct TRANSPORT_IF const*  tp)
 
 
 
-uint32_t Term_ReadLine  (struct TRANSPORT_IF const* tp, uint8_t* buffer, uint32_t buffer_length)
+uint32_t Term_ReadLine  (struct TRANSPORT_IF const* tp,
+                         uint8_t* buffer,
+                         uint32_t buffer_length,
+                         uint32_t timeout   )
 {
     uint32_t line_length = 0;
     uint32_t recv_length;
@@ -54,7 +57,7 @@ uint32_t Term_ReadLine  (struct TRANSPORT_IF const* tp, uint8_t* buffer, uint32_
         }
         else
         {
-            tp->waitEventTrigger(TRANSPORT_Event_RecvDone);
+            tp->waitEventTrigger(TRANSPORT_Event_RecvDone, timeout);
         }
 
     } while( (char_CR != 0x0D) | (char_LF != 0x0D) );
@@ -64,18 +67,21 @@ uint32_t Term_ReadLine  (struct TRANSPORT_IF const* tp, uint8_t* buffer, uint32_
 
 
 
-uint32_t Term_WriteLine (struct TRANSPORT_IF const* tp, uint8_t* buffer, uint32_t buffer_length)
+uint32_t Term_WriteLine (struct TRANSPORT_IF const* tp,
+                         uint8_t* buffer,
+                         uint32_t buffer_length,
+                         uint32_t timeout   )
 {
     uint32_t send_length = 0;
     uint8_t end_line[2] = {0x0D, 0x0A};
 
     do {
         send_length += tp->send(buffer, buffer_length);
-        tp->waitEventTrigger(TRANSPORT_Event_SendDone);
+        tp->waitEventTrigger(TRANSPORT_Event_SendDone, timeout);
     }while( send_length < buffer_length );
 
     tp->send(end_line, 2);
-    tp->waitEventTrigger(TRANSPORT_Event_SendDone);
+    tp->waitEventTrigger(TRANSPORT_Event_SendDone, timeout);
 
     return send_length;
 }

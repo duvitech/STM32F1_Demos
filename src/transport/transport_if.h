@@ -96,7 +96,7 @@ struct TRANSPORT_IF
      *
      * @param event
      */
-    void (*waitEventTrigger)(enum TRANSPORT_Event event);
+    void (*waitEventTrigger)(enum TRANSPORT_Event event, uint32_t timeout);
 
 
     /**
