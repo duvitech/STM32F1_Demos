@@ -6,15 +6,13 @@
  */
 
 #include "hal_sys.h"
-
+#include <string.h>
 
 
 
 
 void SIM90x_PowerUp(void)
-{
-    SYS_DelayMs(1500);
-}
+{ }
 
 
 
@@ -29,6 +27,11 @@ void SIM90x_Init(void)
 {
 
 }
+
+
+
+
+
 
 
 

@@ -43,12 +43,18 @@ static uint32_t recv(uint8_t* buffer, uint32_t max_length)
                         &error);
     }
 
+    if( status == TRANSPORT_Status_RecvDone )
+    {
+        status == TRANSPORT_Status_Idle;
+    }
 
     return recv_length;
 }
 
 
+
 static void (*RecvDone_Handler)(void) = 0;
+
 
 static void onRecvDone(void)
 {
@@ -61,6 +67,8 @@ static void onRecvDone(void)
                     TP_USART2_FLAG_RECVDONE,
                     OS_OPT_POST_FLAG_SET,
                     &error);
+
+    status = TRANSPORT_Status_RecvDone;
 }
 
 
@@ -74,8 +82,11 @@ static uint32_t send(void* buffer, uint32_t length)
                     OS_OPT_POST_FLAG_CLR,
                     &error);
 
+    status = TRANSPORT_Status_SendBusy;
+
     return USART2_Send(buffer, length);
 }
+
 
 
 static void (*SendDone_Handler)(void) = 0;
@@ -91,6 +102,8 @@ static void onSendDone(void)
                     TP_USART2_FLAG_SENDDONE,
                     OS_OPT_POST_FLAG_SET,
                     &error);
+
+    status = TRANSPORT_Status_SendDone;
 }
 
 
@@ -101,6 +114,7 @@ static uint8_t init(void* config)
 
     USART2_SetRecvTimeoutISR(onRecvDone);
     USART2_SetSendDoneISR(onSendDone);
+    status = TRANSPORT_Status_Idle;
 
     return true;
 }
