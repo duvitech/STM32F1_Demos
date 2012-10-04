@@ -45,7 +45,7 @@ static uint32_t recv(uint8_t* buffer, uint32_t max_length)
 
     if( status == TRANSPORT_Status_RecvDone )
     {
-        status == TRANSPORT_Status_Idle;
+        status = TRANSPORT_Status_Idle;
     }
 
     return recv_length;
@@ -73,7 +73,7 @@ static void onRecvDone(void)
 
 
 
-static uint32_t send(void* buffer, uint32_t length)
+static uint32_t send(uint8_t* buffer, uint32_t length)
 {
     OS_ERR error;
 
@@ -144,9 +144,11 @@ void setEventHandler(enum TRANSPORT_Event event, void (*handler)(void) )
 
 
 
-void waitEventTrigger(enum TRANSPORT_Event event, uint32_t timeout)
+enum TRANSPORT_Event waitEventTrigger(enum TRANSPORT_Event event, uint32_t timeout)
 {
     OS_ERR error;
+    OS_FLAGS flags = 0;
+    enum TRANSPORT_Event ret_event;
     uint32_t tick_timeout;
 
     tick_timeout = (timeout*OSCfg_TickRate_Hz)/1000;
@@ -158,7 +160,7 @@ void waitEventTrigger(enum TRANSPORT_Event event, uint32_t timeout)
     switch( event )
     {
     case TRANSPORT_Event_RecvDone:
-        OSFlagPend(     &TP_USART2_Flags,
+        flags = OSFlagPend( &TP_USART2_Flags,
                         TP_USART2_FLAG_RECVDONE,
                         tick_timeout,
                         OS_OPT_PEND_FLAG_SET_ANY,
@@ -167,7 +169,7 @@ void waitEventTrigger(enum TRANSPORT_Event event, uint32_t timeout)
         break;
 
     case TRANSPORT_Event_SendDone:
-        OSFlagPend(     &TP_USART2_Flags,
+        flags = OSFlagPend( &TP_USART2_Flags,
                         TP_USART2_FLAG_SENDDONE,
                         tick_timeout,
                         OS_OPT_PEND_FLAG_SET_ANY,
@@ -176,7 +178,7 @@ void waitEventTrigger(enum TRANSPORT_Event event, uint32_t timeout)
         break;
 
     case TRANSPORT_Event_Error:
-        OSFlagPend(     &TP_USART2_Flags,
+        flags = OSFlagPend( &TP_USART2_Flags,
                         TP_USART2_FLAG_ERROR,
                         tick_timeout,
                         OS_OPT_PEND_FLAG_SET_ANY,
@@ -187,6 +189,17 @@ void waitEventTrigger(enum TRANSPORT_Event event, uint32_t timeout)
     default:
         break;
     }
+
+    if( flags == 0 )
+    {
+        ret_event = TRANSPORT_Event_Timeout;
+    }
+    else
+    {
+        ret_event = event;
+    }
+
+    return ret_event;
 }
 
 

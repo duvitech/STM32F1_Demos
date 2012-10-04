@@ -43,6 +43,7 @@ enum TRANSPORT_Event
     TRANSPORT_Event_RecvDone    = 0x02,//!< 接收完成事件
     TRANSPORT_Event_SendDone    = 0x08,//!< 发送完成事件
     TRANSPORT_Event_Error       = 0x80,//!< 出错事件
+    TRANSPORT_Event_Timeout     = 0xFF,
 };
 
 
@@ -72,7 +73,7 @@ struct TRANSPORT_IF
      * @param length    发送长度
      * @return
      */
-    uint32_t (*send)(void* buffer, uint32_t length);
+    uint32_t (*send)(uint8_t* buffer, uint32_t length);
 
 
     /**
@@ -96,7 +97,7 @@ struct TRANSPORT_IF
      *
      * @param event
      */
-    void (*waitEventTrigger)(enum TRANSPORT_Event event, uint32_t timeout);
+    enum TRANSPORT_Event (*waitEventTrigger)(enum TRANSPORT_Event event, uint32_t timeout);
 
 
     /**
