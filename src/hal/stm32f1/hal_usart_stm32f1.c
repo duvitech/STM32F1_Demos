@@ -17,6 +17,7 @@ static uint8_t USART2_TxBuffer[0x400];
 static uint32_t USART2_ReadIndex = 0;
 
 
+
 /**
  * ≥ı ºªØ≈‰÷√
  */
@@ -26,7 +27,7 @@ void USART2_Init(void)
     DMA_InitTypeDef DMA_InitStructure;
 
 
-    USART_InitStructure.USART_BaudRate = 115200;
+    USART_InitStructure.USART_BaudRate = 9600;
     USART_InitStructure.USART_WordLength = USART_WordLength_8b;
     USART_InitStructure.USART_StopBits = USART_StopBits_1;
     USART_InitStructure.USART_Parity = USART_Parity_No;

@@ -32,6 +32,7 @@ enum TRANSPORT_Status
     TRANSPORT_Status_RecvDone  = 0x02,//!< 接收完成
     TRANSPORT_Status_SendBusy  = 0x04,//!< 发送忙
     TRANSPORT_Status_SendDone  = 0x08,//!< 发送完成
+    TRANSPORT_Status_Disconnect= 0x10,//!< 连接断开
 };
 
 
@@ -40,8 +41,10 @@ enum TRANSPORT_Status
  */
 enum TRANSPORT_Event
 {
+    TRANSPORT_Event_NONE        = 0x00,
     TRANSPORT_Event_RecvDone    = 0x02,//!< 接收完成事件
     TRANSPORT_Event_SendDone    = 0x08,//!< 发送完成事件
+    TRANSPORT_Event_Disconnect  = 0x10,//!< 连接断开
     TRANSPORT_Event_Error       = 0x80,//!< 出错事件
     TRANSPORT_Event_Timeout     = 0xFF,
 };
@@ -83,6 +86,13 @@ struct TRANSPORT_IF
      * @return
      */
     uint32_t (*recv)(uint8_t* buffer, uint32_t length);
+
+
+    /**
+     * 清空数据缓冲区
+     * @return
+     */
+    uint32_t (*flush)(void);
 
 
     /**

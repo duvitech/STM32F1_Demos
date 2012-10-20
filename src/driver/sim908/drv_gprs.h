@@ -14,7 +14,16 @@ extern "C" {
 
 
 
-void GPRS_Init(void);
+struct GPRS_CONFIG
+{
+    uint8_t addr[64];
+    uint8_t port[8];
+};
+
+
+extern const struct TRANSPORT_IF TP_GPRS;
+
+void GPRS_Connect(void);
 
 
 

@@ -9,6 +9,18 @@
 #include <os.h>
 #include <stdint.h>
 
+
+uint32_t SYS_MsToTick(uint32_t ms)
+{
+    uint32_t ticks;
+
+    ticks = (ms*OSCfg_TickRate_Hz)/1000;
+
+    return ticks;
+}
+
+
+
 void SYS_EnterInt(void)
 {
     CPU_SR_ALLOC();
@@ -19,11 +31,11 @@ void SYS_EnterInt(void)
 
 
 
-
 void SYS_ExitInt(void)
 {
     OSIntExit();
 }
+
 
 
 void SYS_DelayMs(uint32_t ms)

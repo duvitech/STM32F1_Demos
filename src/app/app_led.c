@@ -10,16 +10,16 @@
 
 void LED_Task(void *p_arg);
 
-APP_TASK_DEFINE(LED_Task,       /*name name##_TCB*/
-                LED_Task,       /*p_task*/
-                0,              /*p_arg*/
-                8,              /*prio*/
-                512,            /*stk_size_32*/
-                0,              /*q_size*/
-                0,              /*time_quanta*/
-                0,              /*p_ext*/
-                (OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR) /*opt*/
-)
+//APP_TASK_DEFINE(LED_Task,       /*name name##_TCB*/
+//                LED_Task,       /*p_task*/
+//                0,              /*p_arg*/
+//                8,              /*prio*/
+//                512,            /*stk_size_32*/
+//                0,              /*q_size*/
+//                0,              /*time_quanta*/
+//                0,              /*p_ext*/
+//                (OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR) /*opt*/
+//)
 
 
 void LED_Task(void *p_arg)

@@ -20,6 +20,9 @@ static enum TRANSPORT_Status status;
 
 APP_FLAG_DEFINE(TP_USART2_Flags, 0)
 
+static void (*RecvDone_Handler)(void) = 0;
+static void (*SendDone_Handler)(void) = 0;
+
 
 enum TRANSPORT_Status getStatus(void)
 {
@@ -53,7 +56,7 @@ static uint32_t recv(uint8_t* buffer, uint32_t max_length)
 
 
 
-static void (*RecvDone_Handler)(void) = 0;
+
 
 
 static void onRecvDone(void)
@@ -89,7 +92,11 @@ static uint32_t send(uint8_t* buffer, uint32_t length)
 
 
 
-static void (*SendDone_Handler)(void) = 0;
+static uint32_t flush(void)
+{
+    return USART2_Flush();
+}
+
 
 static void onSendDone(void)
 {
@@ -210,10 +217,14 @@ const struct TRANSPORT_IF TP_USART2 =
                 .init       = init,
                 .send       = send,
                 .recv       = recv,
+                .flush      = flush,
                 .status     = getStatus,
                 .setEventHandler    = setEventHandler,
                 .waitEventTrigger   = waitEventTrigger,
 };
+
+
+
 
 
 

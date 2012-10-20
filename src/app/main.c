@@ -51,7 +51,13 @@ void main(void)
 
     Launcher_Exec();
 
-    OS_CPU_SysTickInit(SystemCoreClock/OSCfg_TickRate_Hz);
+    /////////////////////////////////////////////////////////////////
+    RCC_ClocksTypeDef RCC_Clocks;
+    RCC_GetClocksFreq(&RCC_Clocks);
+
+    OS_CPU_SysTickInit( (RCC_Clocks.HCLK_Frequency/OSCfg_TickRate_Hz) - 1 );
+    /////////////////////////////////////////////////////////////////
+
     OSStart(&error);
 
 }
