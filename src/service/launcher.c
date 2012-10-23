@@ -91,7 +91,7 @@ static  void  AppTaskCreate (void)
 
         if(error != OS_ERR_NONE)
         {
-            goto ERROR_HANDLE;
+            goto __ERROR_HANDLE;
         }
 
     }
@@ -100,7 +100,7 @@ static  void  AppTaskCreate (void)
     return;
 
 
-    ERROR_HANDLE:
+    __ERROR_HANDLE:
 
     switch(error)
     {
@@ -137,7 +137,7 @@ static  void  AppSemCreate (void)
 
         if(error != OS_ERR_NONE)
         {
-            goto ERROR_HANDLE;
+            goto __ERROR_HANDLE;
         }
 
     }
@@ -145,7 +145,7 @@ static  void  AppSemCreate (void)
     return;
 
 
-    ERROR_HANDLE:
+    __ERROR_HANDLE:
 
     switch(error)
     {
@@ -185,7 +185,7 @@ static  void  AppFlagCreate (void)
 
         if(error != OS_ERR_NONE)
         {
-            goto ERROR_HANDLE;
+            goto __ERROR_HANDLE;
         }
 
     }
@@ -193,7 +193,7 @@ static  void  AppFlagCreate (void)
     return;
 
 
-    ERROR_HANDLE:
+    __ERROR_HANDLE:
 
     switch(error)
     {
@@ -209,7 +209,45 @@ static  void  AppFlagCreate (void)
 
 
 
+static  void  AppMutexCreate (void)
+{
+    OS_ERR  error = OS_ERR_NONE;
 
+    struct OSMutexCreate_Arg* find;
+    struct OSMutexCreate_Arg* end;
+
+    find = __section_begin("APP_MUTEX_DEFINE");
+    end = __section_end("APP_MUTEX_DEFINE");
+
+    for(; find < end; find ++)
+    {
+        OSMutexCreate ( (OS_MUTEX      *)find->mutex,
+                        (CPU_CHAR      *)find->p_name,
+                        (OS_ERR        *)&error);
+
+        if(error != OS_ERR_NONE)
+        {
+            goto __ERROR_HANDLE;
+        }
+
+    }
+
+    return;
+
+
+    __ERROR_HANDLE:
+
+    switch(error)
+    {
+    case OS_ERR_NONE:
+        break;
+
+    default:
+        while(1);
+        break;
+
+    }
+}
 
 
 
@@ -218,10 +256,10 @@ void Launcher_Exec(void)
 
     AppMemCreate();
     AppFlagCreate();
+    AppMutexCreate();
 
     // ºóÆÚÌí¼Ó
 //    AppQCreate();
-//    AppMutexCreate();
 
     AppSemCreate();
     AppTaskCreate();

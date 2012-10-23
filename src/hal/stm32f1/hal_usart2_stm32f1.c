@@ -1,5 +1,5 @@
 /*
- * hal_usart_stm32f1.c
+ * hal_usart2_stm32f1.c
  *
  *  Created on: 2012-9-18
  *      Author: YangZhiyong
@@ -23,9 +23,34 @@ static uint32_t USART2_ReadIndex = 0;
  */
 void USART2_Init(void)
 {
-    USART_InitTypeDef USART_InitStructure;
-    DMA_InitTypeDef DMA_InitStructure;
+    /**
+     * 1.初始化时钟
+     */
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
 
+
+    /**
+     * 2.初始化IO
+     */
+    GPIO_InitTypeDef GPIO_InitStructure;
+
+    /* Configure USART2 Rx as input floating */
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+    /* Configure USART2 Tx as alternate function push-pull */
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+
+    /**
+     * 3.初始化控制器
+     */
+    USART_InitTypeDef USART_InitStructure;
 
     USART_InitStructure.USART_BaudRate = 9600;
     USART_InitStructure.USART_WordLength = USART_WordLength_8b;
@@ -37,6 +62,11 @@ void USART2_Init(void)
     /* Configure USARTy */
     USART_Init(USART2, &USART_InitStructure);
 
+
+    /**
+     * 4.初始化DMA
+     */
+    DMA_InitTypeDef DMA_InitStructure;
 
     DMA_DeInit(DMA1_Channel6);
     DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)&(USART2->DR);
@@ -73,6 +103,25 @@ void USART2_Init(void)
 
     USART_ITConfig(USART2, USART_IT_IDLE, ENABLE);
     USART_Cmd(USART2, ENABLE);
+
+
+    /**
+     * 5.初始化中断系统
+     */
+    NVIC_InitTypeDef NVIC_InitStructure;
+
+    /* Enable the USART2 Interrupt */
+    NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+
+    /* Enable the DMA1_Channel7 Interrupt */
+    NVIC_InitStructure.NVIC_IRQChannel = DMA1_Channel7_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+
 }
 
 

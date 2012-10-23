@@ -6,9 +6,13 @@
  */
 #include "app_terminal.h"
 #include "service/launcher.h"
+#include "service/debug.h"
 #include "transport/transport_usart2.h"
+#include "transport/transport_gprs.h"
 #include "driver/sim908/drv_sim90x.h"
 #include "driver/sim908/drv_gprs.h"
+
+
 
 void TestSIM908(void *p_arg);
 
@@ -30,7 +34,7 @@ uint8_t test0[] = "ABCDEFGHIJK";
 uint8_t test1[] = "0123456789ABCDEFGHIJK";
 
 
-struct GPRS_CONFIG eeyyyee_xicp_net =
+const struct GPRS_CONFIG eeyyyee_xicp_net =
 {
                 .addr = "eeyyyee.xicp.net",
                 .port = "20000",
@@ -68,23 +72,34 @@ void TestSIM908(void *p_arg)
 //    (void)temp;
 //    while(1);
 
+    SIM90x_WaitResponseList2(1000, "aaa", "bbb", "ccc", "ddd", 0);
+    SIM90x_WaitResponseList2(2000, "000", "111111", "2445", "7777", 0);
+    SIM90x_WaitResponseList2(3000, "aaa", "bbb", "ccc", "ddd", "7777", 0);
+    SIM90x_WaitResponseList2(4000, "aaa", "bbb", "ccc", "ddd", "7777", "7777", 0);
+
+
+    Debug_Print("Debug Test: %4d, %s, %4x...\n", 57, "abcdef", 88);
+    Debug_Print("GPRS Init...\n");
+
     TP_USART2.init((void*)0);
     SIM90x_Init(&TP_USART2);
 
 //    TP_GPRS.setEventHandler()
-    TP_GPRS.init(&eeyyyee_xicp_net);
+    TP_GPRS.init((struct GPRS_CONFIG*)&eeyyyee_xicp_net);
 
 
     while(1)
     {
         OSTimeDly(5000, OS_OPT_TIME_DLY, &error);
+        Debug_Print("GPRS Sending...\n");
         TP_GPRS.send(test0, strlen((const char*)test0));
         OSTimeDly(5000, OS_OPT_TIME_DLY, &error);
+        Debug_Print("GPRS Sending...\n");
         TP_GPRS.send(test1, strlen((const char*)test1));
 
         if( TP_GPRS.status() == TRANSPORT_Status_Disconnect )
         {// 自动重连
-            TP_GPRS.init(&eeyyyee_xicp_net);
+            TP_GPRS.init( (struct GPRS_CONFIG*)&eeyyyee_xicp_net );
         }
 
     }

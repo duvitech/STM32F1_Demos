@@ -27,11 +27,8 @@ void Clock_Init(void)
                            ENABLE);
 
 
-    /* Enable USARTy Clock */
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
 
-    /* Enable USARTz Clock */
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+
 }
 
 

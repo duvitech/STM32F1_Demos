@@ -45,7 +45,7 @@ uint32_t SIM90x_Flush(void);
 ////// TEST   /////
 uint8_t list_string(uint8_t* string, uint8_t* list, uint8_t div);
 
-
+uint32_t SIM90x_WaitResponseList2(uint32_t timeout, ... );
 
 
 #ifdef __cplusplus

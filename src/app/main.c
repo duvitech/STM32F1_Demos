@@ -9,10 +9,12 @@
 #include "hal.h"
 #include "stm32f10x.h"
 #include "hal_usart.h"
+
 //#include <cpu.h>
 #include <os.h>
 #include "service/launcher.h"
-
+#include "service/debug.h"
+#include "transport/transport_usart1.h"
 
 //#pragma location=0x800
 //__root const uint8_t BUILD_TIME[] = __TIME__;
@@ -42,8 +44,10 @@ void main(void)
 {
     OS_ERR error;
 
-
     HAL_Init();
+
+    TP_USART1.init(0);
+    Debug_Init( (struct TRANSPORT_IF*)&TP_USART1 );
 
     CPU_IntDis();
 

@@ -121,8 +121,24 @@ struct OSFlagCreate_Arg
 #define APP_Q_DEFINE()
 
 
+////////////////////////////////////////////////////////////////////////////////
 
-#define APP_MUTEX_DEFINE()
+#pragma section="APP_MUTEX_DEFINE"
+
+struct OSMutexCreate_Arg
+{
+    OS_MUTEX *mutex;
+    CPU_CHAR *p_name;
+};
+
+#define APP_MUTEX_DEFINE(name) \
+                OS_MUTEX name;\
+                __root const struct OSMutexCreate_Arg name##_Arg @ "APP_MUTEX_DEFINE" =\
+                {\
+                    &name,\
+                    #name,\
+                };\
+
 
 
 extern OS_MEM  AppMem4KB;

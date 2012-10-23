@@ -14,17 +14,10 @@ extern "C" {
 
 
 
-struct GPRS_CONFIG
-{
-    uint8_t addr[64];
-    uint8_t port[8];
-};
+void GPRS_Connect(uint8_t* addr, uint8_t* port);
 
-
-extern const struct TRANSPORT_IF TP_GPRS;
-
-void GPRS_Connect(void);
-
+bool GPRS_IsTMode(void);
+void GPRS_SwitchTMode(bool onoff);
 
 
 #ifdef __cplusplus

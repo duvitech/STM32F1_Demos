@@ -18,10 +18,8 @@ void HAL_Init(void)
     Clock_Init();
     PIN_Init();
     LED_Init();
+    USART1_Init();
     USART2_Init();
     Intrrupt_Init();
 }
-
-
-
 

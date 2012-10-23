@@ -1,12 +1,12 @@
 /*
- * transport_usart2.h
+ * transport_usart1.h
  *
  *  Created on: 2012-9-22
  *      Author: YangZhiyong
  */
 
-#ifndef TRANSPORT_USART2_H_
-#define TRANSPORT_USART2_H_
+#ifndef TRANSPORT_USART1_H_
+#define TRANSPORT_USART1_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,10 +16,10 @@ extern "C" {
 
 #include "transport_if.h"
 
-extern const struct TRANSPORT_IF TP_USART2;
+extern const struct TRANSPORT_IF TP_USART1;
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TRANSPORT_USART2_H_ */
+#endif /* TRANSPORT_USART1_H_ */

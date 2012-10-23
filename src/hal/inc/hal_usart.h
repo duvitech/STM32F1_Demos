@@ -40,12 +40,14 @@ typedef void (*USART_RecvTimeoutISR)(void);
 /**
  * 初始化配置
  */
+void USART1_Init(void);
 void USART2_Init(void);
 
 /**
  * 字节发送
  * @param byte  发送字节
  */
+void USART1_SendByte(uint8_t byte);
 void USART2_SendByte(uint8_t byte);
 
 /**
@@ -54,8 +56,8 @@ void USART2_SendByte(uint8_t byte);
  * @param length
  * @return
  */
+uint32_t USART1_Send(void* buffer, uint32_t length);
 uint32_t USART2_Send(void* buffer, uint32_t length);
-
 
 /**
  *
@@ -63,18 +65,18 @@ uint32_t USART2_Send(void* buffer, uint32_t length);
  * @param max_length
  * @return
  */
+uint32_t USART1_Recv(uint8_t* buffer, uint32_t max_length);
 uint32_t USART2_Recv(uint8_t* buffer, uint32_t max_length);
 
-
+uint32_t USART1_DataAvailable(void);
 uint32_t USART2_DataAvailable(void);
-
 
 /**
  *
  * @return
  */
+uint32_t USART1_Flush(void);
 uint32_t USART2_Flush(void);
-
 
 
 ///**
@@ -87,14 +89,16 @@ uint32_t USART2_Flush(void);
  *
  * @param isr
  */
+void USART1_SetRecvTimeoutISR    (USART_RecvTimeoutISR isr);
 void USART2_SetRecvTimeoutISR    (USART_RecvTimeoutISR isr);
+
 
 /**
  *
  * @param isr
  */
+void USART1_SetSendDoneISR       (USART_SendDoneISR isr);
 void USART2_SetSendDoneISR       (USART_SendDoneISR isr);
-
 
 #ifdef __cplusplus
 }

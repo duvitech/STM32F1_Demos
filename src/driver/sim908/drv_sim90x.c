@@ -7,10 +7,12 @@
 
 
 #include <string.h>
+#include <stdarg.h>
 #include "hal_sys.h"
 #include "stm32f10x_gpio.h"
 #include "app/app_terminal.h"
 #include <os.h>
+#include "service/debug.h"
 
 
 #define RESPONSE_LIST_DIV_CHAR ((uint8_t)',')
@@ -269,6 +271,38 @@ uint32_t SIM90x_WaitResponseList(uint32_t timeout, uint8_t* const response_list)
 
 
 
+uint32_t SIM90x_WaitResponseList2(uint32_t timeout, ... )
+{
+    uint32_t count = 0;
+    char* arg;
+    va_list args;
+    va_start(args, timeout);
+
+    Debug_Print("Timeout %d \n", timeout);
+
+    do
+    {
+        arg = va_arg( args, char* );
+        if( arg != 0 )
+        {
+            Debug_Print("ARG %d: %s \n", count, arg);
+            count ++;
+        }
+        else
+        {
+            Debug_Print("%d ARG  Finish...\n", count);
+            break;
+        }
+
+    } while(1);
+
+    va_end(args);
+
+    return 0;
+}
+
+
+
 uint32_t SIM90x_Flush(void)
 {
     return SIM90x_Transport->flush();
@@ -392,6 +426,7 @@ void SIM90x_Init(const struct TRANSPORT_IF *tp)
     do
     {
         // Echo mode off
+        Debug_Print("Echo mode off\n");
         SIM90x_Flush();
         SIM90x_WriteLine("ATE0", 1000);
         resp = SIM90x_WaitResponseList(1000, "OK");
@@ -399,6 +434,7 @@ void SIM90x_Init(const struct TRANSPORT_IF *tp)
             continue;
 
         //  Disable network registration unsolicited result code
+        Debug_Print("Disable network registration unsolicited result code\n");
         SIM90x_Flush();
         SIM90x_WriteLine("AT+CREG=0", 1000);
         resp = SIM90x_WaitResponseList(1000, "OK");
@@ -406,6 +442,7 @@ void SIM90x_Init(const struct TRANSPORT_IF *tp)
             continue;
 
 
+        Debug_Print("Disable network registration unsolicited result code\n");
         SIM90x_Flush();
         SIM90x_WriteLine("AT+CPIN? ", 1000);
         resp = SIM90x_WaitResponseList(1000, "+CPIN: READY");
