@@ -17,6 +17,8 @@ extern "C" {
 #include "os.h"
 
 
+#define DEBUG_LAUNCHER      (1)
+
 struct OSTaskCreate_Arg
 {
     OS_TCB        *p_tcb;

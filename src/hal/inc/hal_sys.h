@@ -20,7 +20,7 @@ void SYS_EnterInt(void);
 void SYS_ExitInt(void);
 void SYS_DelayMs(uint32_t ms);
 uint32_t SYS_MsToTick(uint32_t ms);
-
+uint32_t SYS_TickToMs(uint32_t ticks);
 
 #ifdef __cplusplus
 }

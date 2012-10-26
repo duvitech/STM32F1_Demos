@@ -13,10 +13,17 @@
 uint32_t SYS_MsToTick(uint32_t ms)
 {
     uint32_t ticks;
-
     ticks = (ms*OSCfg_TickRate_Hz)/1000;
-
     return ticks;
+}
+
+
+
+uint32_t SYS_TickToMs(uint32_t ticks)
+{
+    uint32_t ms;
+    ms = ticks*(1000/OSCfg_TickRate_Hz);
+    return ms;
 }
 
 

@@ -7,6 +7,7 @@
 
 
 #include "launcher.h"
+#include "service/debug.h"
 
 
 #pragma section="OS_4K_MEM_POOL"
@@ -108,6 +109,9 @@ static  void  AppTaskCreate (void)
         break;
 
     default:
+        Debug(DEBUG_LAUNCHER,   "AppTaskCreate Failed !\n"
+                                "TASK: %s     ERROR: %d",
+                                task_find->p_name, error);
         while(1);
         break;
 

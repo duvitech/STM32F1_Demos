@@ -14,9 +14,6 @@ void Clock_Init(void)
        initialize the PLL and update the SystemFrequency variable. */
     SystemInit();
 
-    /* DMA clock enable */
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1|RCC_AHBPeriph_DMA2, ENABLE);
-
     /* Enable GPIO clock */
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA |
                            RCC_APB2Periph_GPIOB |
@@ -24,18 +21,9 @@ void Clock_Init(void)
                            RCC_APB2Periph_GPIOD |
                            RCC_APB2Periph_GPIOE |
                            RCC_APB2Periph_GPIOF,
-                           ENABLE);
-
-
+                           ENABLE   );
 
 
 }
-
-
-
-
-
-
-
 
 

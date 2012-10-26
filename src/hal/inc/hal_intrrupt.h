@@ -12,7 +12,10 @@
 extern "C" {
 #endif
 
+typedef void (*ISR_Handler)(void);
+
 void Intrrupt_Init(void);
+void Intrrupt_SetExtiHandler(uint8_t exti, ISR_Handler handler);
 
 #ifdef __cplusplus
 }

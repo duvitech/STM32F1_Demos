@@ -13,12 +13,12 @@
 #include "launcher.h"
 #include "os.h"
 
-FIFO_DEFINE( DebugFIFO, (DEBUG_BUFFER_LENGTH*4) )
+FIFO_DEFINE( DebugFIFO, (DEBUG_BUFFER_FIFO) )
 
 APP_MUTEX_DEFINE(Debug_Mutex)
 
-static uint8_t buffer_in[DEBUG_BUFFER_LENGTH];   // ÊäÈë»º³å
-static uint8_t buffer_out[DEBUG_BUFFER_LENGTH];     // Êä³ö»º³å
+static uint8_t buffer_in[DEBUG_BUFFER_IN];   // ÊäÈë»º³å
+static uint8_t buffer_dma[DEBUG_BUFFER_DMA];     // Êä³ö»º³å
 
 static struct TRANSPORT_IF* TP_Debug = 0;
 
@@ -31,9 +31,9 @@ void sendFIFO(void)
     if( FIFO_Length(&DebugFIFO) > 0 )
     {
         uint32_t length;
-        length = FIFO_Get(&DebugFIFO, buffer_out, DEBUG_BUFFER_LENGTH);
+        length = FIFO_Get(&DebugFIFO, buffer_dma, sizeof(buffer_dma));
         TP_Debug_Busy = true;
-        TP_Debug->send(buffer_out, length);
+        TP_Debug->send(buffer_dma, length);
     }
     else
     {

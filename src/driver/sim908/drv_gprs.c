@@ -12,6 +12,7 @@
 #include "hal_sys.h"
 #include "transport/transport_usart2.h"
 #include "driver/sim908/drv_gprs.h"
+#include "service/debug.h"
 
 
 static bool TMode = false;
@@ -19,55 +20,67 @@ static bool TMode = false;
 void GPRS_Connect(uint8_t* addr, uint8_t* port)
 {
     uint32_t resp;
+    uint32_t retry = 0;
 
     do
     {
-        Debug_Print("AT+CSQ\n");
+        SYS_DelayMs(500);
+        Debug(DEBUG_GPRS, "\n\nInit GPRS retry %d times !!!! \n", retry);
+        retry ++;
+
+        Debug(DEBUG_GPRS, "AT+CSQ; Signal Quality Report.\n");
         SIM90x_Flush();
         SIM90x_WriteLine("AT+CSQ", 1000);
-        resp = SIM90x_WaitResponseList(1000,    "+CSQ:,"
-                                                "ERROR");
+        resp = SIM90x_WaitResponseList(1000,    "+CSQ:",
+                                                "ERROR", 0);
+        Debug(DEBUG_GPRS, "Response: %s\n", SIM90x_ResponseBuffer);
         if( resp != 1 )
             continue;
 
+        SYS_DelayMs(200);
 
-        Debug_Print("AT+CREG?\n");
+        Debug(DEBUG_GPRS, "\nAT+CREG?; Network Registration status\n");
         SIM90x_Flush();
         SIM90x_WriteLine("AT+CREG?", 1000);
-        resp = SIM90x_WaitResponseList(1000,    "+CREG,"
-                                                "ERROR");
+        resp = SIM90x_WaitResponseList(1000,    "+CREG: 0,1",
+                                                "ERROR", 0);
+        Debug(DEBUG_GPRS, "Response: %s\n", SIM90x_ResponseBuffer);
         if( resp != 1 )
             continue;
 
 
         // Enable transparent mode
-        Debug_Print("Enable transparent mode\n");
+        Debug(DEBUG_GPRS, "\nAT+CIPMODE=1; Enable transparent mode.\n");
         SIM90x_Flush();
         SIM90x_WriteLine("AT+CIPMODE=1", 1000);
-        resp = SIM90x_WaitResponseList(1000,    "OK,"
-                                                "ERROR");
+        resp = SIM90x_WaitResponseList(1000,    "OK",
+                                                "ERROR", 0);
+        Debug(DEBUG_GPRS, "Response: %s\n", SIM90x_ResponseBuffer);
         if( resp != 1 )
             continue;
 
 
-        Debug_Print("AT+CGATT?\n");
+        // Attach from GPRS Service.
+        Debug(DEBUG_GPRS, "\nAT+CGATT?; Attach from GPRS Service.\n");
         SIM90x_Flush();
         SIM90x_WriteLine("AT+CGATT?", 1000);
-        resp = SIM90x_WaitResponseList(1000,    "+CGATT: 1,"
-                                                "+CGATT: 0,"
-                                                "ERROR");
+        resp = SIM90x_WaitResponseList(1000,    "+CGATT: 1",
+                                                "+CGATT: 0",
+                                                "ERROR", 0);
+        Debug(DEBUG_GPRS, "Response: %s\n", SIM90x_ResponseBuffer);
         if( resp != 1 )
             continue;
 
 
-        // Start Task and Set APN, USER NAME, PASSWORD
-        Debug_Print("AT+CSTT?\n");
-        SIM90x_Flush();
-        SIM90x_WriteLine("AT+CSTT?", 1000);
-        resp = SIM90x_WaitResponseList(3000,    "+CSTT,"
-                                                "ERROR");
-        if( resp != 1 )
-            continue;
+        // Start Task and Set APN.
+//        Debug(DEBUG_GPRS, "\nAT+CSTT?; Start Task and Set APN.\n");
+//        SIM90x_Flush();
+//        SIM90x_WriteLine("AT+CSTT?", 1000);
+//        resp = SIM90x_WaitResponseList(3000,    "+CSTT",
+//                                                "ERROR", 0);
+//        Debug(DEBUG_GPRS, "Response: %s\n", SIM90x_ResponseBuffer);
+//        if( resp != 1 )
+//            continue;
 
 
         //  Bring  up  wireless  connection  (GPRS  or CSD)
@@ -78,8 +91,10 @@ void GPRS_Connect(uint8_t* addr, uint8_t* port)
 //        if( resp != 1 )
 //            continue;
 
-        /// AT+CIPSTART=¡±TCP¡±,¡±<ADDR>¡±,¡±<PORT>¡±
-        Debug_Print("AT+CIPSTART\n");
+        SYS_DelayMs(500);
+        /// AT+CIPSTART="TCP","180.136.156.186","20000"
+        /// AT+CIPSTART="TCP","<ADDR>","<PORT>" Start Up TCP or UDP Connection
+        Debug(DEBUG_GPRS, "\nAT+CIPSTART; Start Up TCP Connection <%s:%s>.\n", addr, port);
         SIM90x_Flush();
         SIM90x_WriteString("AT+CIPSTART=", 1000);
         SIM90x_WriteString("\"TCP\",\"", 1000);
@@ -88,12 +103,19 @@ void GPRS_Connect(uint8_t* addr, uint8_t* port)
         SIM90x_WriteString(port, 1000); // port
         SIM90x_WriteString("\"\r\n", 1000);
 
-        resp = SIM90x_WaitResponseList(5000,    "ERROR,"
-                                                "STATE:,"
-                                                "CONNECT FAIL,"
-                                                "CONNECT OK,"
-                                                "ALREADY CONNECT,"
-                                                "CONNECT");
+        resp = SIM90x_WaitResponseList(500,     "OK", 0);
+        Debug(DEBUG_GPRS, "Response: %s\n", SIM90x_ResponseBuffer);
+        if( resp != 1 )
+            continue;
+
+
+        resp = SIM90x_WaitResponseList(8000,    "ERROR",
+                                                "STATE:",
+                                                "CONNECT FAIL",
+                                                "CONNECT OK",
+                                                "ALREADY CONNECT",
+                                                "CONNECT", 0);
+        Debug(DEBUG_GPRS, "Response: %s\n", SIM90x_ResponseBuffer);
         if( resp < 4 )
             continue;
 
@@ -117,6 +139,7 @@ bool GPRS_IsTMode(void)
 void GPRS_SwitchTMode(bool onoff)
 {
     uint32_t resp;
+    uint32_t retry = 0;
 
     if( TMode == onoff )
     {
@@ -125,10 +148,12 @@ void GPRS_SwitchTMode(bool onoff)
 
     do
     {
-        SIM90x_WaitIdleTime(1200);
+//        SIM90x_WaitIdleTime(1200);
+        SYS_DelayMs(1200);
 
+        Debug(DEBUG_GPRS, "SwitchTMode Retry: %d\n", retry++);
         SIM90x_WriteLine("+++", 1000);
-        resp = SIM90x_WaitResponse1(1000, "OK");
+        resp = SIM90x_WaitResponseList(800, "OK", 0);
 
         if( resp == 0 )
             continue;

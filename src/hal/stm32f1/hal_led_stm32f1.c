@@ -12,6 +12,16 @@ const uint16_t LED_PIN[5] = {1<<6, 1<<7, 1<<8, 1<<9, 1<<10};
 
 
 
+static void initGPIO(void)
+{
+    GPIO_InitTypeDef GPIO_InitStructure;
+
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+    GPIO_Init(GPIOF, &GPIO_InitStructure);
+
+}
 
 
 
@@ -44,6 +54,8 @@ void LED_Set(uint8_t led, uint8_t value)
 void LED_Init(void)
 {
     uint8_t led;
+
+    initGPIO();
 
     for(led = 0; led < 5; led++)
     {

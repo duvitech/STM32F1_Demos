@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-
+#define DEBUG_GPRS      (1)
 
 void GPRS_Connect(uint8_t* addr, uint8_t* port);
 

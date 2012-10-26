@@ -13,15 +13,17 @@
 #include "app/app_terminal.h"
 #include <os.h>
 #include "service/debug.h"
+#include "drv_sim90x.h"
+#include "service/launcher.h"
+#include "hal_intrrupt.h"
 
+#define SIM90X_POWER_FLAG   (0x01)
 
-#define RESPONSE_LIST_DIV_CHAR ((uint8_t)',')
-
-#define RESPONSE_MAX_LENGTH 0x80
+APP_FLAG_DEFINE(SIM90X_Flags, 0)
 
 struct TRANSPORT_IF* SIM90x_Transport = 0;
 
-static uint8_t SIM90x_ResponseBuffer[RESPONSE_MAX_LENGTH];
+uint8_t SIM90x_ResponseBuffer[RESPONSE_MAX_LENGTH];
 
 static OS_TMR IdleTimer;
 static OS_TICK IdleTick;
@@ -42,7 +44,7 @@ uint32_t SIM90x_GetIdleTime(void)
     uint32_t idle_ms;
 
     tick = OSTimeGet(&error) - IdleTick;
-    idle_ms = tick * (OSCfg_TickRate_Hz/1000);
+    idle_ms = SYS_TickToMs(tick);
 
     return idle_ms;
 }
@@ -99,212 +101,79 @@ int SIM90x_ReadLine( uint8_t* const line,
 
 
 
-uint32_t SIM90x_WaitResponse1(uint32_t timeout, char* const response)
+uint32_t SIM90x_WaitResponseList(uint32_t timeout, ... )
 {
     int recv_length;
-    int resp_length;
     int result;
-
-    resp_length = strnlen( response, sizeof(SIM90x_ResponseBuffer) );
-
-    do
-    {
-        recv_length = Term_ReadLine(SIM90x_Transport, SIM90x_ResponseBuffer, sizeof(SIM90x_ResponseBuffer), timeout);
-
-        if( recv_length < 0 )
-        {// 超时
-            return 0;
-        }
-        else if( recv_length == 0 )
-        {// 空行
-            continue;
-        }
-        else
-        {
-            result = memcmp( (char const*)SIM90x_ResponseBuffer, (char const*)response, resp_length);
-            if ( result == 0 )
-            {// 期待的回应
-                return 1;
-            }
-
-            {// 意外回应 TODO AT自动回应。
-            }
-        }
-
-    }
-    while(1);
-
-}
-
-
-
-uint32_t SIM90x_WaitResponse2(uint32_t timeout, char* const response1, char* const response2 )
-{
-    int recv_length;
-    int resp1_length;
-    int resp2_length;
-    int result;
-
-    resp1_length = strnlen( response1, sizeof(SIM90x_ResponseBuffer) );
-    resp2_length = strnlen( response2, sizeof(SIM90x_ResponseBuffer) );
-
-    do
-    {
-        recv_length = Term_ReadLine(SIM90x_Transport, SIM90x_ResponseBuffer, sizeof(SIM90x_ResponseBuffer), timeout);
-
-        if( recv_length < 0 )
-        {// 超时
-            return 0;
-        }
-        else if( recv_length == 0 )
-        {// 空行
-            continue;
-        }
-        else
-        {
-            result = memcmp( (char const*)SIM90x_ResponseBuffer, (char const*)response1, resp1_length);
-            if ( result == 0 )
-            {// 期待的回应
-                return 1;
-            }
-
-            result = memcmp( (char const*)SIM90x_ResponseBuffer, (char const*)response2, resp2_length);
-            if ( result == 0 )
-            {// 期待的回应
-                return 2;
-            }
-
-            {// 意外回应 TODO AT自动回应。
-            }
-        }
-
-    }
-    while(1);
-
-}
-
-
-
-uint8_t list_string(uint8_t* string, uint8_t* list, uint8_t div)
-{
-    uint32_t str_len;
-    int result;
-    uint8_t* seek_head;
-    uint8_t* seek_end;
-    uint8_t idx = 1;
-
-    if( (string==0) | (list==0) )
-        return 0;
-
-    seek_head = list;
-
-    do
-    {
-        seek_end = (uint8_t*)strchr((const char*)seek_head, div);
-        if( seek_end != 0 )
-        {// get div
-            str_len = seek_end - seek_head;
-        }
-        else
-        {
-            str_len = strlen((const char*)seek_head);
-        }
-
-        // compare
-        result = memcmp( string, seek_head, str_len);
-        if ( result == 0 )
-        {
-            return idx;
-        }
-
-        // move to next string
-        if( seek_end != 0 )
-        {
-            idx ++;
-            seek_end ++;
-            seek_head = seek_end; /// skip div char
-        }
-        else
-        {
-            return 0;
-        }
-
-    } while(1);
-
-}
-
-
-
-
-uint32_t SIM90x_WaitResponseList(uint32_t timeout, uint8_t* const response_list)
-{
-    int recv_length;
-    uint8_t result;
-
-    do
-    {
-        recv_length = Term_ReadLine(SIM90x_Transport, SIM90x_ResponseBuffer, sizeof(SIM90x_ResponseBuffer), timeout);
-
-        if( recv_length < 0 )
-        {// 超时
-            return 0;
-        }
-        else if( recv_length == 0 )
-        {// 空行
-            continue;
-        }
-        else
-        {
-            result = list_string(   SIM90x_ResponseBuffer,
-                                    response_list,
-                                    RESPONSE_LIST_DIV_CHAR);
-
-            if( result != 0 )
-            {
-                return result;
-            }
-        }
-
-    }
-    while(1);
-}
-
-
-
-uint32_t SIM90x_WaitResponseList2(uint32_t timeout, ... )
-{
-    uint32_t count = 0;
+    uint32_t count;
     char* arg;
     va_list args;
-    va_start(args, timeout);
 
-    Debug_Print("Timeout %d \n", timeout);
 
     do
     {
-        arg = va_arg( args, char* );
-        if( arg != 0 )
-        {
-            Debug_Print("ARG %d: %s \n", count, arg);
-            count ++;
+        recv_length = Term_ReadLine(    SIM90x_Transport,
+                                        SIM90x_ResponseBuffer,
+                                        sizeof(SIM90x_ResponseBuffer),
+                                        timeout     );
+        if( recv_length < 0 )
+        {// 超时
+            return 0;
+        }
+        else if( recv_length == 0 )
+        {// 空行
+            continue;
         }
         else
-        {
-            Debug_Print("%d ARG  Finish...\n", count);
-            break;
+        {// 比较参数列表
+            count = 1;
+            va_start(args, timeout);
+            do
+            {
+                arg = va_arg( args, char* );    // 取下一个参数
+                if( arg != 0 )
+                {
+                    result = memcmp( arg, SIM90x_ResponseBuffer, strlen(arg) );
+                    if( result == 0 )
+                    {// 比较相等
+                        return count;
+                    }
+                    count ++;
+                }
+                else
+                {// 参数列表结束
+                    break;
+                }
+            } while(1);
+            va_end(args);
         }
+    }
+    while(1);
 
-    } while(1);
-
-    va_end(args);
-
-    return 0;
 }
 
 
 
 uint32_t SIM90x_Flush(void)
 {
+    uint32_t idx;
+    uint8_t* ptr;
+
+    ptr = SIM90x_ResponseBuffer;
+
+    for( idx = 0; idx < sizeof(SIM90x_ResponseBuffer); idx ++ )
+    {
+        if( *ptr != 0x00 )
+        {
+            *ptr = 0x00;
+            ptr ++;
+        }
+        else
+        {
+            break;
+        }
+    }
+
     return SIM90x_Transport->flush();
 }
 
@@ -313,8 +182,66 @@ uint32_t SIM90x_Flush(void)
 ////////////////////////////////////////////////////////////////////////////
 
 
+void onStatusChanged(void)
+{
+    uint8_t pin;
+    OS_ERR error;
+
+    pin = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_14);
+
+    if( pin == Bit_RESET )
+    {
+        OSFlagPost(     &SIM90X_Flags,
+                        SIM90X_POWER_FLAG,
+                        OS_OPT_POST_FLAG_CLR,
+                        &error);
+    }
+    else
+    {
+        OSFlagPost(     &SIM90X_Flags,
+                        SIM90X_POWER_FLAG,
+                        OS_OPT_POST_FLAG_SET,
+                        &error);
+    }
+}
 
 
+
+static bool SIM90x_WaitPowerUp(uint32_t timeout)
+{
+    OS_ERR error;
+    OS_FLAGS flags;
+
+    timeout = SYS_MsToTick(timeout);
+
+    flags = OSFlagPend( &SIM90X_Flags,
+                    SIM90X_POWER_FLAG,
+                    timeout,
+                    OS_OPT_PEND_FLAG_SET_AND,
+                    (void*)0,
+                    &error  );
+
+    return (flags == SIM90X_POWER_FLAG);
+}
+
+
+
+static bool SIM90x_WaitPowerDown(uint32_t timeout)
+{
+    OS_ERR error;
+    OS_FLAGS flags;
+
+    timeout = SYS_MsToTick(timeout);
+
+    flags = OSFlagPend( &SIM90X_Flags,
+                        SIM90X_POWER_FLAG,
+                        timeout,
+                        OS_OPT_PEND_FLAG_CLR_AND,
+                        (void*)0,
+                        &error  );
+
+    return (flags == SIM90X_POWER_FLAG);
+}
 
 
 
@@ -342,6 +269,8 @@ void initPort(void)
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
     GPIO_Init(GPIOE, &GPIO_InitStructure);
+
+    Intrrupt_SetExtiHandler(14, onStatusChanged);
 }
 
 
@@ -367,16 +296,42 @@ void releasePWRKEY(void)
 void SIM90x_PowerUp(void)
 {
     uint32_t resp;
+    uint32_t retry = 0;
 
-    do{
-        pressPWRKEY();
-        SYS_DelayMs(1200);
+    do
+    {
+        Debug(DEBUG_SIM908, "SIM908 PowerUp retry %d times !!! \n", retry++);
         releasePWRKEY();
+        SYS_DelayMs(500);
+        pressPWRKEY();
+    } while(SIM90x_WaitPowerUp(2000) == false);
 
-        SYS_DelayMs(2500);
+    releasePWRKEY();
 
-        SIM90x_WriteLine("AT", 1000);
-        resp = SIM90x_WaitResponseList(1000, "OK");
+    retry = 0;
+    do{
+        SYS_DelayMs(800);
+        Debug(DEBUG_SIM908, "SIM908 Autobauding retry %d times !!! \n", retry++);
+
+//        pressPWRKEY();
+//        SYS_DelayMs(1200);
+//        releasePWRKEY();
+//        SYS_DelayMs(5000);
+
+        SIM90x_WriteLine("AT", 200);
+        resp = SIM90x_WaitResponseList(100, "OK", 0);
+        SIM90x_WriteLine("AT", 200);
+        resp = SIM90x_WaitResponseList(100, "OK", 0);
+        SIM90x_WriteLine("AT", 200);
+        resp = SIM90x_WaitResponseList(100, "OK", 0);
+        SIM90x_WriteLine("AT", 200);
+        resp = SIM90x_WaitResponseList(100, "OK", 0);
+        SIM90x_WriteLine("AT", 200);
+        resp = SIM90x_WaitResponseList(100, "OK", 0);
+        SIM90x_WriteLine("AT", 200);
+        resp = SIM90x_WaitResponseList(100, "OK", 0);
+        SIM90x_WriteLine("AT", 200);
+        resp = SIM90x_WaitResponseList(100, "OK", 0);
 
     }while(resp != 1);
 
@@ -387,12 +342,16 @@ void SIM90x_PowerUp(void)
 void SIM90x_PowerDown(void)
 {
     uint32_t resp;
+    uint32_t retry = 0;
 
     do{
+        Debug(DEBUG_SIM908, "SIM908 PowerDown retry %d times !!! \n", retry);
+        retry ++;
+
         pressPWRKEY();
-//        resp = SIM90x_WaitResponse1(1000, "NORMAL POWER DOWN");
-        resp = SIM90x_WaitResponseList(1000, "NORMAL POWER DOWN");
+        resp = SIM90x_WaitResponseList(1000, "NORMAL POWER DOWN", 0);
         releasePWRKEY();
+
     }while(resp != 1);
 
 }
@@ -402,6 +361,7 @@ void SIM90x_PowerDown(void)
 void SIM90x_Init(const struct TRANSPORT_IF *tp)
 {
     uint32_t resp;
+    uint32_t retry = 0;
     OS_ERR error;
 
     SIM90x_Transport = (struct TRANSPORT_IF*)tp;
@@ -423,44 +383,45 @@ void SIM90x_Init(const struct TRANSPORT_IF *tp)
     ////////////////
     SIM90x_PowerUp();
 
-    do
+    while(1)
     {
+        SYS_DelayMs(500);
+        Debug(DEBUG_SIM908, "\n\nInit SIM908 retry %d times !!!! \n", retry);
+        retry ++;
+
         // Echo mode off
-        Debug_Print("Echo mode off\n");
+        Debug(DEBUG_SIM908, "\nATE0; Echo mode off\n");
         SIM90x_Flush();
         SIM90x_WriteLine("ATE0", 1000);
-        resp = SIM90x_WaitResponseList(1000, "OK");
+        resp = SIM90x_WaitResponseList(1000, "OK", 0);
+        Debug(DEBUG_SIM908, "Response: %s\n", SIM90x_ResponseBuffer);
         if( resp == 0 )
             continue;
 
         //  Disable network registration unsolicited result code
-        Debug_Print("Disable network registration unsolicited result code\n");
+        Debug(DEBUG_SIM908, "\nAT+CREG=0;    Network Registration \n");
         SIM90x_Flush();
         SIM90x_WriteLine("AT+CREG=0", 1000);
-        resp = SIM90x_WaitResponseList(1000, "OK");
+        resp = SIM90x_WaitResponseList(1000, "OK", 0);
+        Debug(DEBUG_SIM908, "Response: %s\n", SIM90x_ResponseBuffer);
         if( resp == 0 )
             continue;
 
 
-        Debug_Print("Disable network registration unsolicited result code\n");
+        Debug(DEBUG_SIM908, "\nAT+CPIN?    Enter PIN \n");
         SIM90x_Flush();
-        SIM90x_WriteLine("AT+CPIN? ", 1000);
-        resp = SIM90x_WaitResponseList(1000, "+CPIN: READY");
+        SIM90x_WriteLine("AT+CPIN?", 1000);
+        resp = SIM90x_WaitResponseList(1000, "+CPIN: READY", 0);
+        Debug(DEBUG_SIM908, "Response: %s\n", SIM90x_ResponseBuffer);
         if( resp == 0 )
             continue;
 
         break;
-    } while(1);
+
+    }
 
     SIM90x_StartIdleTime();
 
 }
-
-
-
-
-
-
-
 
 

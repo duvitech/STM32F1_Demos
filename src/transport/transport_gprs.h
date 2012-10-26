@@ -17,6 +17,8 @@ extern "C" {
 #include "driver/sim908/drv_gprs.h"
 #include "driver/sim908/drv_sim90x.h"
 
+#define GPRS_RECV_FIFO_LENGTH 0x400
+
 
 struct GPRS_CONFIG
 {

@@ -170,7 +170,7 @@ static enum TRANSPORT_Event waitEventTrigger(enum TRANSPORT_Event event, uint32_
         flags = OSFlagPend( &TP_USART2_Flags,
                         TP_USART2_FLAG_RECVDONE,
                         tick_timeout,
-                        OS_OPT_PEND_FLAG_SET_ANY,
+                        OS_OPT_PEND_FLAG_SET_AND,
                         (void*)0,
                         &error  );
         break;
@@ -179,7 +179,7 @@ static enum TRANSPORT_Event waitEventTrigger(enum TRANSPORT_Event event, uint32_
         flags = OSFlagPend( &TP_USART2_Flags,
                         TP_USART2_FLAG_SENDDONE,
                         tick_timeout,
-                        OS_OPT_PEND_FLAG_SET_ANY,
+                        OS_OPT_PEND_FLAG_SET_AND,
                         (void*)0,
                         &error  );
         break;
@@ -188,7 +188,7 @@ static enum TRANSPORT_Event waitEventTrigger(enum TRANSPORT_Event event, uint32_
         flags = OSFlagPend( &TP_USART2_Flags,
                         TP_USART2_FLAG_ERROR,
                         tick_timeout,
-                        OS_OPT_PEND_FLAG_SET_ANY,
+                        OS_OPT_PEND_FLAG_SET_AND,
                         (void*)0,
                         &error  );
         break;
